@@ -5,6 +5,7 @@ import (
 	"os"
 	"server/db"
 	"server/internal/user"
+	"server/internal/ws"
 	"server/router"
 
 	"github.com/joho/godotenv"
@@ -27,10 +28,17 @@ func main() {
 		log.Fatalf("could not initialize database connection: %s", err)
 	}
 
+	// User
 	userRepository := user.NewRepository(dbConn.GetDB())
 	userService := user.NewService(userRepository)
 	userController := user.NewController(userService)
 
-	router.Init(userController)
+	// Websocket
+	hub := ws.NewHub()
+	wsController := ws.NewController(hub)
+	hub.Run()
+
+	// Router
+	router.Init(userController, wsController)
 	router.Start(ENDPOINT)
 }
