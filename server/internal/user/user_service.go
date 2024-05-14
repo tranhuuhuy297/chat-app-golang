@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 )
 
 var SECRET_KEY string
@@ -19,7 +20,7 @@ func init() {
 		panic(err.Error())
 	}
 
-	SECRET_KEY = os.Getenv("SHELL")
+	SECRET_KEY = os.Getenv("SECRET_KEY")
 }
 
 type service struct {
@@ -91,13 +92,13 @@ func (s *service) Login(c context.Context, req *LoginUserReq) (*LoginUserRes, er
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	})
-
 	accessToken, err := token.SignedString([]byte(SECRET_KEY))
 	if err != nil {
 		return &LoginUserRes{}, err
 	}
 
-	loginUserRes := &LoginUserRes{accessToken: accessToken, Username: user.Username, ID: strconv.Itoa(int(user.ID))}
+	log.Printf("token: %s | access token: %s\n", token, accessToken)
+	loginUserRes := &LoginUserRes{AccessToken: accessToken, Username: user.Username, ID: strconv.Itoa(int(user.ID))}
 
 	return loginUserRes, nil
 }

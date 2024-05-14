@@ -46,7 +46,7 @@ func (controller *Controller) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("jwt", res.accessToken, 60*60*24, "/", "localhost", false, true) // Secure = false, httpOnly = true
+	c.SetCookie("jwt", res.AccessToken, 60*60*24, "/", "localhost", false, true) // Secure = false, httpOnly = true
 	c.JSON(http.StatusOK, res)
 }
 
