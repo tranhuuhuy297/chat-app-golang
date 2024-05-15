@@ -36,10 +36,9 @@ func (h *Hub) Run() {
 			}
 
 			room := h.Rooms[client.RoomID]
-			log.Printf("ws/hub/Run| Existed room: %v", room)
 			if _, ok := room.Clients[client.ID]; !ok {
 				room.Clients[client.ID] = client
-				log.Printf("ws/hub/Run| Client joined: %v", client)
+				log.Printf("ws/hub/Run| Client joined: %s", client.Username)
 			}
 		case client := <-h.Unregister:
 			_, existedRoom := h.Rooms[client.RoomID]
@@ -59,6 +58,7 @@ func (h *Hub) Run() {
 				Username: client.Username,
 			}
 
+			log.Printf("ws/hub/Run| Client left: %s", client.Username)
 			delete(h.Rooms[client.RoomID].Clients, client.ID)
 			close(client.Message)
 		case message := <-h.Broadcast:
@@ -67,6 +67,7 @@ func (h *Hub) Run() {
 				return
 			}
 
+			log.Printf("ws/hub/Run| Message broadcast: %s", message.Content)
 			for _, client := range h.Rooms[message.RoomID].Clients {
 				client.Message <- message
 			}
