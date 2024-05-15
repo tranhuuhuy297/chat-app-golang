@@ -18,8 +18,8 @@ func Init(userController *user.Controller, wsController *ws.Controller) {
 
 	r.POST("/ws/rooms", wsController.CreateRoom)
 	r.GET("/ws/rooms", wsController.GetRooms)
-	r.GET("/ws/join-room/:roomId", wsController.JoinRoom)
-	r.GET("/ws/clients/:roomId", wsController.GetClients)
+	r.GET("/ws/room-joining", wsController.JoinRoom)
+	r.GET("/ws/clients", wsController.GetClients)
 }
 
 func Start(address string) error {

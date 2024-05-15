@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"server/db"
 	"server/internal/user"
@@ -25,7 +25,7 @@ func init() {
 func main() {
 	dbConn, err := db.NewDatabase()
 	if err != nil {
-		log.Fatalf("could not initialize database connection: %s", err)
+		log.Printf("main| Could not initialize database connection: %s", err)
 	}
 
 	// User
@@ -36,7 +36,7 @@ func main() {
 	// Websocket
 	hub := ws.NewHub()
 	wsController := ws.NewController(hub)
-	hub.Run()
+	go hub.Run()
 
 	// Router
 	router.Init(userController, wsController)

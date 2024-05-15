@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Controller struct {
@@ -53,9 +55,10 @@ func (controller *Controller) JoinRoom(c *gin.Context) {
 		return
 	}
 
-	roomID := c.Param("roomId")
+	roomID := c.Query("roomId")
 	clientID := c.Query("userId")
 	username := c.Query("username")
+	log.Printf("ws/ws_controller/JoinRoom| roomId: %s, userId: %s, username %s", roomID, clientID, username)
 
 	client := &Client{
 		Conn:     conn,
@@ -70,9 +73,13 @@ func (controller *Controller) JoinRoom(c *gin.Context) {
 		RoomID:   roomID,
 		Username: username,
 	}
+	log.Printf("ws/ws_controller/JoinRoom| message: %v", message)
 
 	controller.hub.Register <- client
 	controller.hub.Broadcast <- message
+
+	go client.writeMessage()
+	client.readMessage(controller.hub)
 }
 
 type GetRoomRes struct {
@@ -93,22 +100,22 @@ func (controller *Controller) GetRooms(c *gin.Context) {
 	c.JSON(http.StatusOK, rooms)
 }
 
-type ClientRes struct {
+type GetClientRes struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
 }
 
 func (controller *Controller) GetClients(c *gin.Context) {
-	var clients []ClientRes
-	roomId := c.Param("roomId")
+	var clients []GetClientRes
+	roomId := c.Query("roomId")
 
 	if _, ok := controller.hub.Rooms[roomId]; !ok {
-		clients = make([]ClientRes, 0)
+		clients = make([]GetClientRes, 0)
 		c.JSON(http.StatusOK, clients)
 	}
 
 	for _, c := range controller.hub.Rooms[roomId].Clients {
-		clients = append(clients, ClientRes{
+		clients = append(clients, GetClientRes{
 			ID:       c.ID,
 			Username: c.Username,
 		})

@@ -1,5 +1,9 @@
 package ws
 
+import (
+	log "github.com/sirupsen/logrus"
+)
+
 type Room struct {
 	ID      string             `json:"id"`
 	Name    string             `json:"name"`
@@ -26,12 +30,16 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.Register:
-			if _, ok := h.Rooms[client.RoomID]; ok {
-				room := h.Rooms[client.RoomID]
+			_, existedRoom := h.Rooms[client.RoomID]
+			if !existedRoom {
+				return
+			}
 
-				if _, ok := room.Clients[client.ID]; !ok {
-					room.Clients[client.ID] = client
-				}
+			room := h.Rooms[client.RoomID]
+			log.Printf("ws/hub/Run| Existed room: %v", room)
+			if _, ok := room.Clients[client.ID]; !ok {
+				room.Clients[client.ID] = client
+				log.Printf("ws/hub/Run| Client joined: %v", client)
 			}
 		case client := <-h.Unregister:
 			_, existedRoom := h.Rooms[client.RoomID]
@@ -54,10 +62,13 @@ func (h *Hub) Run() {
 			delete(h.Rooms[client.RoomID].Clients, client.ID)
 			close(client.Message)
 		case message := <-h.Broadcast:
-			if _, ok := h.Rooms[message.RoomID]; ok {
-				for _, client := range h.Rooms[message.RoomID].Clients {
-					client.Message <- message
-				}
+			_, existedRoom := h.Rooms[message.RoomID]
+			if !existedRoom {
+				return
+			}
+
+			for _, client := range h.Rooms[message.RoomID].Clients {
+				client.Message <- message
 			}
 		}
 	}

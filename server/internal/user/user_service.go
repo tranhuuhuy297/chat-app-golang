@@ -9,7 +9,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
 )
 
 var SECRET_KEY string
@@ -97,7 +96,6 @@ func (s *service) Login(c context.Context, req *LoginUserReq) (*LoginUserRes, er
 		return &LoginUserRes{}, err
 	}
 
-	log.Printf("token: %s | access token: %s\n", token, accessToken)
 	loginUserRes := &LoginUserRes{AccessToken: accessToken, Username: user.Username, ID: strconv.Itoa(int(user.ID))}
 
 	return loginUserRes, nil
