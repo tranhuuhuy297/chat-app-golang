@@ -7,3 +7,7 @@ make docker-run-postgres
 ```
 make migrate-up
 ```
+- Run server: in server folder
+```
+go run main.go
+```
