@@ -1,12 +1,13 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"server/db"
 	"server/internal/user"
 	"server/internal/ws"
 	"server/router"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/joho/godotenv"
 )

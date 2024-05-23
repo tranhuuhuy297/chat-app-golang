@@ -87,10 +87,10 @@ func (s *service) Login(c context.Context, req *LoginUserReq) (*LoginUserRes, er
 		ID:       strconv.Itoa(int(user.ID)),
 		Username: user.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    strconv.Itoa(int(user.ID)),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	})
+	
 	accessToken, err := token.SignedString([]byte(SECRET_KEY))
 	if err != nil {
 		return &LoginUserRes{}, err

@@ -1,6 +1,7 @@
 package router
 
 import (
+	md "server/internal/middleware"
 	"server/internal/user"
 	"server/internal/ws"
 
@@ -16,7 +17,7 @@ func Init(userController *user.Controller, wsController *ws.Controller) {
 	r.POST("/login", userController.Login)
 	r.GET("/logout", userController.Logout)
 
-	r.POST("/ws/rooms", wsController.CreateRoom)
+	r.POST("/ws/rooms", md.AuthenticateMiddleware, wsController.CreateRoom)
 	r.GET("/ws/rooms", wsController.GetRooms)
 	r.GET("/ws/room-joining", wsController.JoinRoom)
 	r.GET("/ws/clients", wsController.GetClients)
